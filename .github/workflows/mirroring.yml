@@ -34,11 +34,11 @@ jobs:
         id: build
         run: |
           make
-          if [ ! -f "libcuddle.a" ]; then
-            echo "Error: Build failed. Binary 'libcuddle.a' does not exist."
+          if [ ! -f "mysh" ]; then
+            echo "Error: Build failed. Binary 'mysh' does not exist."
             exit 1
           fi
-          echo "Build successful. Binary 'libcuddle.a' is present."
+          echo "Build successful. Binary 'mysh' is present."
 
       - name: Run unit tests
         id: tests
