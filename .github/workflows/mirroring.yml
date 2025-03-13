@@ -10,7 +10,7 @@ on:
 jobs:
   compile_and_test:
     name: Compilation et Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker:latest
     
     steps:

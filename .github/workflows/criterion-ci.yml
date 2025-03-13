@@ -8,7 +8,7 @@ on:
 
 jobs:
   criterion:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker:latest
 
     steps:
