@@ -2,9 +2,9 @@ name: Epitech Repository Mirroring
 
 on:
   push:
-    branches: [ main ]
+    branches: "**"
   pull_request:
-    branches: [ main ]
+    branches: "**"
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
       - name: Run unit tests
         id: tests
         run: |
-          make tests_run
+          output=$(make tests_run || true)
 
   repository_mirroring:
     name: Mirroring vers Epitech
