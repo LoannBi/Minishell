@@ -1,0 +1,42 @@
+name: Compilation and Unit Tests
+
+on:
+  push:
+    branches: "**"
+  pull_request:
+    branches: "**"
+
+jobs:
+  criterion:
+    runs-on: self-hosted
+    container: epitechcontent/epitest-docker:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify required files
+        run: |
+          if [ ! -f "Makefile" ]; then
+            echo "Error: Makefile does not exist!"
+            exit 1
+          fi
+          if [ ! -d "src" ]; then
+            echo "Error: Source directory 'src' does not exist!"
+            exit 1
+          fi
+          echo "All required files are present."
+
+      - name: Build project
+        run: |
+          make
+          if [ ! -f "mysh" ]; then
+            echo "Error: Build failed. Binary 'mysh' does not exist."
+            exit 1
+          fi
+          echo "Build successful. Binary 'mysh' is present."
+
+      - name: Run unit tests and gather results
+        id: tests
+        run: |
+          output=$(make tests_run || true)

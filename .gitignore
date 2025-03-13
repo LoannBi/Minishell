@@ -50,3 +50,18 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Local files
+divzero
+mac-test
+my_divzero
+my_segfault
+mysh
+tester.sh
+unexecutable.c
+divzero.c
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride

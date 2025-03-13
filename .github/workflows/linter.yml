@@ -1,0 +1,41 @@
+name: Coding Style Checker
+
+on:
+  push:
+    branches: "**"
+  pull_request:
+    branches: "**"
+
+jobs:
+  linter:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run Banana
+      run: /usr/local/bin/check.sh . ~/reports
+
+    - name: Filter Out Ignored Files
+      run: grep -v './lib/libshell.a' ~/reports/coding-style-reports.log > ~/reports/filtered-reports.log || true
+
+    - name: Display Filtered Report Log
+      run: cat ~/reports/filtered-reports.log
+
+    - name: Check Coding Style Output
+      run: |
+        if [ -s ~/reports/filtered-reports.log ]; then
+          echo "### Coding Style Checker Report 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Errors 🚨 | Major Errors ❗ | Minor Errors ⚠️ | Info Messages ℹ️ |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------------|-----------------|------------------|------------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total:** $(wc -l < ~/reports/filtered-reports.log) | **Major:** $(grep -c ": MAJOR:" ~/reports/filtered-reports.log) | **Minor:** $(grep -c ": MINOR:" ~/reports/filtered-reports.log) | **Info:** $(grep -c ": INFO:" ~/reports/filtered-reports.log) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "$(cat ~/reports/filtered-reports.log)" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "No coding style issues found. ✔️ " >> $GITHUB_STEP_SUMMARY
+          exit 0
+        fi
