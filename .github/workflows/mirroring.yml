@@ -9,7 +9,7 @@ on:
 
 env:
   MIRROR_URL: ${{ secrets.REPO_URL_PROD }}
-  EXECUTABLES: "libcuddle.a"
+  EXECUTABLES: "mysh"
 
 jobs:
   check_coding_style:
@@ -92,6 +92,7 @@ jobs:
           done
 
   run_tests:
+    if: ${{ !startsWith(github.ref_name, 'ga-ignore-') && success() }}
     name: Running tests
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker:latest
