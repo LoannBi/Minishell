@@ -40,7 +40,7 @@ int main(int argc, char **argv, char **env)
     while (1) {
         if (read_user_input(&input, &len) == 84)
             break;
-        shell->exit_status = handle_command(shell, input);
+        shell->exit_status = handle_line(shell, input);
     }
     final_exit_status = shell->exit_status;
     free(input);

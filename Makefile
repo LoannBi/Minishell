@@ -20,11 +20,16 @@ SRC =	src/env/env_free.c									\
 		src/builtins/builtin_cd.c							\
 		src/builtins/builtin_echo.c							\
 		src/exec/command_handler.c							\
+		src/exec/pipe_handler.c								\
+		src/exec/pip_exec.c									\
+		src/exec/pip_init.c									\
+		src/exec/pip_wait.c									\
 		src/utils/array_utils.c								\
 		src/utils/str_utils.c								\
 		src/utils/error_handling.c							\
 		src/builtins/builtin_handler.c						\
 		src/main.c											\
+		src/utils/line_handlers.c							\
 
 LIB = 	lib/my_atoi.c					\
 		lib/my_put_nbr.c				\

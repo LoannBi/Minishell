@@ -26,6 +26,15 @@ typedef struct shell_s {
     const char *default_path;
 } shell_t;
 
+typedef struct command_context_s {
+    shell_t *shell;
+    char **commands;
+    pid_t *pids;
+    int (*pipes)[2];
+    int cmd_count;
+    int pipe_count;
+} command_context_t;
+
 shell_t *init_shell(char **env);
 void free_word_array(char **array);
 void free_shell(shell_t *shell);
