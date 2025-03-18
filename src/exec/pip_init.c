@@ -29,6 +29,22 @@ int count_pipes(char *input)
     return count;
 }
 
+static int has_empty_command(char **commands, int cmd_count)
+{
+    int i;
+    char *cleaned;
+
+    for (i = 0; i < cmd_count; i++) {
+        cleaned = clean_str(commands[i]);
+        if (!cleaned || !cleaned[0]) {
+            free(cleaned);
+            return 1;
+        }
+        free(cleaned);
+    }
+    return 0;
+}
+
 static char **split_by_pipe(char *input)
 {
     return my_str_to_word_array(input, '|');
@@ -85,6 +101,11 @@ int prepare_execution(command_context_t *ctx)
     if (!ctx->commands || !ctx->pids || !ctx->pipes)
         return 84;
     clean_commands(ctx->commands, ctx->cmd_count);
+    if (has_empty_command(ctx->commands, ctx->cmd_count)) {
+        my_putstr("Invalid null command.\n");
+        ctx->shell->exit_status = 1;
+        return 84;
+    }
     if (create_pipes(ctx->pipe_count, ctx->pipes) == 84) {
         free_word_array(ctx->commands);
         return 84;
