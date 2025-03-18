@@ -24,14 +24,24 @@ static void close_all_pipes(int pipe_count, int pipes[][2])
     }
 }
 
+static void redirect_io(command_context_t *ctx, int index)
+{
+    if (index > 0 && dup2(ctx->pipes[index - 1][0], STDIN_FILENO) == -1) {
+        perror("dup2 stdin");
+        exit(1);
+    }
+    if (index < ctx->cmd_count - 1 &&
+        dup2(ctx->pipes[index][1], STDOUT_FILENO) == -1) {
+        perror("dup2 stdout");
+        exit(1);
+    }
+}
+
 static void execute_child(command_context_t *ctx, char **args, int index)
 {
     char *cmd_path;
 
-    if (index > 0)
-        dup2(ctx->pipes[index - 1][0], STDIN_FILENO);
-    if (index < ctx->cmd_count - 1)
-        dup2(ctx->pipes[index][1], STDOUT_FILENO);
+    redirect_io(ctx, index);
     close_all_pipes(ctx->pipe_count, ctx->pipes);
     if (handle_builtins(ctx->shell, args))
         exit(ctx->shell->exit_status);
@@ -42,6 +52,7 @@ static void execute_child(command_context_t *ctx, char **args, int index)
         exit(1);
     }
     execve(cmd_path, args, ctx->shell->env_array);
+    free(cmd_path);
     perror("execve");
     exit(1);
 }

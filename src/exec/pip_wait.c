@@ -16,15 +16,22 @@
 
 static int handle_signal_status(int status)
 {
-    int signal_code = WTERMSIG(status);
+    int signal_code;
 
+    if (!WIFSIGNALED(status))
+        return status;
+    signal_code = WTERMSIG(status);
+    if (signal_code == SIGPIPE)
+        return 1;
     if (signal_code == SIGSEGV) {
-        my_putstr("Segmentation fault\n");
+        my_putstr("Segmentation fault");
     } else {
         my_putstr("Killed by signal ");
         my_put_nbr(signal_code);
-        my_putchar('\n');
     }
+    if (WCOREDUMP(status))
+        my_putstr(" (core dumped)");
+    my_putchar('\n');
     return 128 + signal_code;
 }
 
