@@ -46,6 +46,7 @@ LIB = 	lib/my_atoi.c					\
 		lib/my_realloc.c				\
 		lib/my_strncmp.c				\
 		lib/str_to_word_array.c			\
+		lib/print_error.c				\
 
 SRC_OBJ = $(SRC:.c=.o)
 LIB_OBJ = $(LIB:.c=.o)

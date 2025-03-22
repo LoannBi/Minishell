@@ -30,4 +30,5 @@ int my_strncmp(char const *s1, char const *s2, int n);
 char **my_str_to_word_array(const char *str, char delim);
 char *my_strndup(const char *src, size_t n);
 char *clean_str(const char *str);
+void print_error(const char *message);
 #endif

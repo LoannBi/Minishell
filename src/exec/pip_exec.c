@@ -31,7 +31,7 @@ static void redirect_io(command_context_t *ctx, int index)
         exit(1);
     }
     if (index < ctx->cmd_count - 1 &&
-        dup2(ctx->pipes[index][1], STDOUT_FILENO) == -1) {
+        dup2(ctx->pipes[index][1], STDOUT_FILENO) == -1){
         perror("dup2 stdout");
         exit(1);
     }
@@ -47,13 +47,14 @@ static void execute_child(command_context_t *ctx, char **args, int index)
         exit(ctx->shell->exit_status);
     cmd_path = find_executable(ctx->shell, args[0]);
     if (!cmd_path) {
-        my_putstr(args[0]);
-        my_putstr(": Command not found.\n");
+        print_error(args[0]);
+        print_error(": Command not found.\n");
         exit(1);
     }
     execve(cmd_path, args, ctx->shell->env_array);
     free(cmd_path);
-    perror("execve");
+    print_error("execve: ");
+    perror("");
     exit(1);
 }
 
@@ -96,7 +97,7 @@ int launch_commands(command_context_t *ctx)
     int i;
     char **args;
 
-    for (i = 0; i < ctx->cmd_count; i++) {
+    for (i = 0; i < ctx->cmd_count; i++){
         args = get_command_arguments(ctx, i);
         if (!args)
             continue;
