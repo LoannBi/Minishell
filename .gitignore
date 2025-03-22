@@ -65,3 +65,6 @@ divzero.c
 .DS_Store
 .AppleDouble
 .LSOverride
+README
+*.json
+tests

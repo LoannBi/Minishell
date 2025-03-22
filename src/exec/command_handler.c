@@ -46,30 +46,48 @@ static char **prepare_args(char *input)
 
 static char *get_command_path(shell_t *shell, char *command)
 {
-    return find_executable(shell, command);
+    char *path = find_executable(shell, command);
+
+    return path;
 }
 
 static int handle_special_cases(shell_t *shell, char *input, char **args)
 {
-    if (!args || !args[0])
+    if (!args || !args[0]) {
         return 0;
+    }
     if (unmatched_quotes(input)) {
         shell->exit_status = 1;
         return 1;
     }
-    if (handle_exit_command(args, shell))
+    if (handle_exit_command(args, shell)) {
         return shell->exit_status;
-    if (handle_builtins(shell, args))
+    }
+    if (handle_builtins(shell, args)) {
         return shell->exit_status;
+    }
     return -1;
+}
+
+static int contains_pipe(char *input)
+{
+    for (int i = 0; input && input[i]; i++) {
+        if (input[i] == '|')
+            return 1;
+    }
+    return 0;
 }
 
 int handle_command(shell_t *shell, char *input)
 {
+    char **args;
+    int special_case;
     char *cmd_path;
-    char **args = prepare_args(input);
-    int special_case = handle_special_cases(shell, input, args);
 
+    if (contains_pipe(input))
+        return handle_pipes(shell, input);
+    args = prepare_args(input);
+    special_case = handle_special_cases(shell, input, args);
     if (special_case != -1)
         return special_case;
     cmd_path = get_command_path(shell, args[0]);
