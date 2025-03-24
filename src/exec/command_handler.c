@@ -84,6 +84,8 @@ int handle_command(shell_t *shell, char *input)
     int special_case;
     char *cmd_path;
 
+    if (has_redirection(input))
+        return handle_redirections(shell, input);
     if (contains_pipe(input))
         return handle_pipes(shell, input);
     args = prepare_args(input);

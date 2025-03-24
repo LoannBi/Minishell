@@ -26,6 +26,18 @@ typedef struct shell_s {
     const char *default_path;
 } shell_t;
 
+typedef enum {
+    REDIR_NONE = 0,
+    REDIR_OUT,       // >
+    REDIR_IN,        // <
+    REDIR_APPEND,    // >>
+    REDIR_HEREDOC    // <<
+} redirection_type_t;
+typedef struct redirection_s {
+    redirection_type_t type;
+    char *file;
+    int fd;
+} redirection_t;
 typedef struct command_context_s {
     shell_t *shell;
     char **commands;
@@ -33,7 +45,11 @@ typedef struct command_context_s {
     int (*pipes)[2];
     int cmd_count;
     int pipe_count;
+    redirection_t **redirections;
+    int *redirection_count;
 } command_context_t;
+
+
 
 shell_t *init_shell(char **env);
 void free_word_array(char **array);
@@ -50,4 +66,11 @@ int is_valid_env_name(const char *name);
 int handle_builtins(shell_t *shell, char **args);
 int unmatched_quotes(const char *input);
 int handle_command(shell_t *shell, char *input);
+char *extract_command_part(const char *cmd, char **file_ptr);
+int apply_redirection_out(const char *file);
+int handle_redirection_out(shell_t *shell, char *input);
+int handle_redirections(shell_t *shell, char *input);
+int has_redirection(const char *cmd);
+int check_redirection_syntax(char *command_part, char *file_part);
+int has_redirection_out(const char *cmd);
 #endif
