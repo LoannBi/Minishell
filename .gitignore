@@ -68,3 +68,4 @@ divzero.c
 README
 *.json
 tests
+*txt
