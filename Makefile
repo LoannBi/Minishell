@@ -32,6 +32,7 @@ SRC =	src/env/env_free.c									\
 		src/utils/line_handlers.c							\
 		src/exec/redirection_handler.c							\
 		src/exec/redirection_utils.c							\
+		src/exec/redirection_parser.c							\
 
 LIB = 	lib/my_atoi.c					\
 		lib/my_put_nbr.c				\

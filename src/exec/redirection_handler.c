@@ -16,12 +16,12 @@
 #include <sys/stat.h>
 
 static int execute_with_redirection(shell_t *shell,
-    char *command_part, char *file_part)
+    char *command_part, char *file_part, redirection_type_t type)
 {
     int old_stdout;
     int status;
 
-    old_stdout = apply_redirection_out(file_part);
+    old_stdout = apply_redirection_out(file_part, type);
     if (old_stdout == -1) {
         free(command_part);
         free(file_part);
@@ -39,11 +39,17 @@ int handle_redirection_out(shell_t *shell, char *input)
 {
     char *command_part;
     char *file_part;
+    redirection_type_t type;
 
-    command_part = extract_command_part(input, &file_part);
+    if (has_multiple_redirections(input)) {
+        print_error("Ambiguous output redirect.\n");
+        shell->exit_status = 1;
+        return 1;
+    }
+    command_part = extract_command_part(input, &file_part, &type);
     if (check_redirection_syntax(command_part, file_part))
         return 1;
-    return execute_with_redirection(shell, command_part, file_part);
+    return execute_with_redirection(shell, command_part, file_part, type);
 }
 
 static int handle_redirection_type(shell_t *shell, char *input)

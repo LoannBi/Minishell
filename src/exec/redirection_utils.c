@@ -14,90 +14,64 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
-int has_redirection_out(const char *cmd)
+static int is_directory(const char *file)
 {
-    int i;
-    int in_quotes;
+    struct stat st;
 
-    i = 0;
-    in_quotes = 0;
-    while (cmd[i]) {
-        if (cmd[i] == '"' || cmd[i] == '\'')
-            in_quotes = !in_quotes;
-        if (!in_quotes && cmd[i] == '>')
-            return 1;
-        i++;
+    if (stat(file, &st) == 0 && S_ISDIR(st.st_mode)) {
+        print_error(file);
+        print_error(": Is a directory.\n");
+        return 1;
     }
     return 0;
 }
 
-static int find_redirection_index(const char *cmd)
+static void print_error_message_by_errno(void)
 {
-    int i;
-    int in_quotes;
-
-    i = 0;
-    in_quotes = 0;
-    while (cmd[i]) {
-        if (cmd[i] == '"' || cmd[i] == '\'')
-            in_quotes = !in_quotes;
-        if (!in_quotes && cmd[i] == '>')
-            return i;
-        i++;
+    if (errno == ENOENT) {
+        print_error("No such file or directory.\n");
+        return;
     }
+    if (errno == EACCES || errno == EPERM) {
+        print_error("Permission denied.\n");
+        return;
+    }
+    if (errno == EISDIR) {
+        print_error("Is a directory.\n");
+        return;
+    }
+    print_error("Cannot create file.\n");
+}
+
+static int handle_open_error(const char *file)
+{
+    print_error(file);
+    print_error(": ");
+    print_error_message_by_errno();
     return -1;
 }
 
-static char *extract_redirection_file(const char *cmd)
-{
-    char *trimmed;
-
-    trimmed = clean_str(cmd);
-    if (!trimmed)
-        return NULL;
-    if (!trimmed[0]) {
-        free(trimmed);
-        return NULL;
-    }
-    return trimmed;
-}
-
-char *extract_command_part(const char *cmd, char **file_ptr)
-{
-    int index;
-    char *command_part;
-    char *file_part;
-
-    index = find_redirection_index(cmd);
-    if (index < 0)
-        return NULL;
-    command_part = my_strndup(cmd, index);
-    if (!command_part)
-        return NULL;
-    file_part = extract_redirection_file(&cmd[index + 1]);
-    if (!file_part) {
-        free(command_part);
-        return NULL;
-    }
-    *file_ptr = file_part;
-    return command_part;
-}
-
-int open_redirection_file(const char *file)
+int open_redirection_file(const char *file, redirection_type_t type)
 {
     int fd;
+    int flags;
 
-    fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd == -1) {
-        print_error(file);
-        print_error(": Cannot create file.\n");
+    if (is_directory(file))
         return -1;
-    }
+    flags = O_WRONLY | O_CREAT;
+    if (type == REDIR_APPEND)
+        flags |= O_APPEND;
+    else
+        flags |= O_TRUNC;
+    fd = open(file, flags, 0777);
+    if (fd == -1)
+        return handle_open_error(file);
     return fd;
 }
 
-int apply_redirection_out(const char *file)
+int apply_redirection_out(const char *file, redirection_type_t type)
 {
     int fd;
     int old_stdout;
@@ -105,7 +79,7 @@ int apply_redirection_out(const char *file)
     old_stdout = dup(STDOUT_FILENO);
     if (old_stdout == -1)
         return -1;
-    fd = open_redirection_file(file);
+    fd = open_redirection_file(file, type);
     if (fd == -1) {
         close(old_stdout);
         return -1;
@@ -118,17 +92,4 @@ int apply_redirection_out(const char *file)
     }
     close(fd);
     return old_stdout;
-}
-
-int check_redirection_syntax(char *command_part, char *file_part)
-{
-    if (!command_part || !file_part) {
-        print_error("Invalid redirection syntax.\n");
-        if (command_part)
-            free(command_part);
-        if (file_part)
-            free(file_part);
-        return 1;
-    }
-    return 0;
 }
