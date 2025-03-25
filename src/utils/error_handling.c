@@ -8,9 +8,13 @@
 #include "minishell.h"
 #include "my.h"
 #include "exec.h"
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 int is_valid_env_name(const char *name)
 {
@@ -49,4 +53,21 @@ int unmatched_quotes(const char *input)
         return 1;
     }
     return 0;
+}
+
+void print_error_message_by_errno(void)
+{
+    if (errno == ENOENT) {
+        print_error("No such file or directory.\n");
+        return;
+    }
+    if (errno == EACCES || errno == EPERM) {
+        print_error("Permission denied.\n");
+        return;
+    }
+    if (errno == EISDIR) {
+        print_error("Is a directory.\n");
+        return;
+    }
+    print_error("Cannot create file.\n");
 }

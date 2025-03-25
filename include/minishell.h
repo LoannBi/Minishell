@@ -74,4 +74,8 @@ int has_redirection(const char *cmd);
 int check_redirection_syntax(char *command_part, char *file_part);
 int has_redirection_out(const char *cmd);
 int has_multiple_redirections(const char *cmd);
+int has_redirection_in(const char *cmd);
+int handle_redirection_in(shell_t *shell, char *input);
+int apply_redirection(const char *file, redirection_type_t type);
+void print_error_message_by_errno(void);
 #endif

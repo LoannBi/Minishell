@@ -20,7 +20,11 @@ static redirection_type_t get_redirection_type(const char *cmd, int index)
 {
     if (cmd[index] == '>' && cmd[index + 1] == '>')
         return REDIR_APPEND;
-    return REDIR_OUT;
+    if (cmd[index] == '>')
+        return REDIR_OUT;
+    if (cmd[index] == '<')
+        return REDIR_IN;
+    return REDIR_NONE;
 }
 
 static int find_redirection_index(const char *cmd, redirection_type_t *type)
@@ -33,7 +37,7 @@ static int find_redirection_index(const char *cmd, redirection_type_t *type)
     while (cmd[i]) {
         if (cmd[i] == '"' || cmd[i] == '\'')
             in_quotes = !in_quotes;
-        if (!in_quotes && cmd[i] == '>') {
+        if (!in_quotes && cmd[i] == '>' || cmd[i] == '<') {
             *type = get_redirection_type(cmd, i);
             return i;
         }
@@ -65,7 +69,7 @@ static int is_redirection_symbol(const char *cmd, int i)
 {
     if (cmd[i] == '>' && cmd[i + 1] == '>')
         return 2;
-    if (cmd[i] == '>')
+    if (cmd[i] == '>' || cmd[i] == '<')
         return 1;
     return 0;
 }
