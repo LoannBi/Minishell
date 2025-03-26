@@ -107,7 +107,6 @@ int prepare_execution(command_context_t *ctx)
         return 84;
     }
     if (create_pipes(ctx->pipe_count, ctx->pipes) == 84) {
-        free_word_array(ctx->commands);
         return 84;
     }
     return 0;
